@@ -17,6 +17,7 @@ healthPath = '/health'
 productPath = '/product'
 productsPath = '/products'
 
+
 def lambda_handler(event, context):
     logger.info(event)
     httpMethod = event['httpMethod']
@@ -40,6 +41,7 @@ def lambda_handler(event, context):
 
     return response
 
+
 def getProduct(productId):
     try:
         response = table.get_item(
@@ -60,7 +62,7 @@ def getProducts():
         response = table.scan()
         result = response['Items']
 
-        while 'LastEvaluatedKey'in response:
+        while 'LastEvaluatedKey' in response:
             response = table.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
             result.extend(response['Items'])
 
@@ -84,14 +86,15 @@ def saveProduct(requestBody):
     except:
         logger.exception('Do your custom error handling here. I am just gonna log it out here!!')
 
+
 def modifyProduct(productId, updateKey, updateValue):
     try:
         response = table.update_item(
             Key={
                 'productId': productId
             },
-            UpdateExpression='set%s = :value' % updateKey,
-            ExpressionAttrivbuteValues={
+            UpdateExpression='set %s = :value' % updateKey,
+            ExpressionAttributeValues={
                 ':value': updateValue
             },
             ReturnValues='UPDATED_NEW'
@@ -101,10 +104,9 @@ def modifyProduct(productId, updateKey, updateValue):
             'Message': 'SUCCESS',
             'UpdatedAttributes': response
         }
-        return buildResponse(200,body)
+        return buildResponse(200, body)
     except:
         logger.exception('Do your custom error handling here. I am just gonna log it out here!!')
-
 
 
 def deleteProduct(productId):
@@ -113,7 +115,7 @@ def deleteProduct(productId):
             Key={
                 'productId': productId
             },
-            RetrunValues='ALL_OLD'
+            ReturnValues='ALL_OLD'
         )
         body = {
             'Operation': 'DELETE',
@@ -123,7 +125,6 @@ def deleteProduct(productId):
         return buildResponse(200, body)
     except:
         logger.exception('Do your custom error handling here. I am just gonna log it out here!!')
-
 
 
 def buildResponse(statusCode, body=None):
